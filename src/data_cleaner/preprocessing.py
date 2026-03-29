@@ -37,5 +37,4 @@ def clean_nasa_dataset(df: pd.DataFrame) -> pd.DataFrame:
 
     df_long["Year"] = pd.to_numeric(df_long["Year"], errors="coerce")
 
-    # return df_long.dropna(subset=["Temperature_Anomaly"])
     return df_long
