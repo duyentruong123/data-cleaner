@@ -3,12 +3,12 @@ requires = ["hatchling>=1.25"]
 build-backend = "hatchling.build"
 
 [project]
-name = "data-cleaner"
+name = "nasa-temp-analyzer"
 version = "0.1.0"
-description = "CLI tool for profiling and analyzing NASA temperature anomaly dataset."
+description = "CLI tool for cleaning and volatility analysis of NASA temperature anomaly data."
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = ["pandas>=2.0", "matplotlib>=3.7"]
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/data_cleaner"]
+packages = ["src/nasa_temp_analyzer"]
