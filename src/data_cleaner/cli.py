@@ -1,39 +1,52 @@
-from __future__ import annotations
-
 import argparse
 from pathlib import Path
 
-from .csv_io import load_csv
-from .profiling import profile_dataframe, format_profile
+from .csv_io import load_csv, save_csv
+from .preprocessing import clean_nasa_dataset
+from .analysis import compute_volatility_analysis
+from .reporting import generate_text_report, save_visualizations
 
 
-def build_parser() -> argparse.ArgumentParser:
+def main(argv=None):
     parser = argparse.ArgumentParser(
-        prog="data_cleaner",
-        description="Profile and clean messy CSV datasets.",
+        description="NASA Temperature Volatility Analysis Tool"
     )
-    subparsers = parser.add_subparsers(dest="command", required=True)
 
-    # profile command
-    profile_p = subparsers.add_parser("profile", help="Analyze a CSV file (missing values, duplicates).")
-    profile_p.add_argument("csv", type=Path)
+    parser.add_argument(
+        "input",
+        type=Path,
+        help="Path to NASA temperature CSV file"
+    )
 
-    # keep placeholders for later commits
-    subparsers.add_parser("clean", help="(Coming soon) Clean a CSV file.")
-    subparsers.add_parser("validate", help="(Coming soon) Validate a CSV file.")
+    parser.add_argument(
+        "--output",
+        type=Path,
+        default=Path("data/processed/cleaned_temperature.csv"),
+        help="Path to save cleaned dataset"
+    )
 
-    return parser
+    args = parser.parse_args(argv)
 
+    print("Loading dataset...")
+    df = load_csv(args.input)
 
-def main(argv=None) -> int:
-    args = build_parser().parse_args(argv)
+    print("Cleaning dataset...")
+    df_clean = clean_nasa_dataset(df)
 
-    if args.command == "profile":
-        df = load_csv(args.csv)
-        summary = profile_dataframe(df)
-        print(format_profile(summary))
-        return 0
+    print("Running analysis...")
+    results = compute_volatility_analysis(df_clean)
 
-    # clean/validate not implemented yet
-    print("This command is not implemented yet.")
-    return 1
+    print("Saving cleaned dataset...")
+    save_csv(df_clean, args.output)
+
+    print("Generating visualization...")
+    results_path = Path("data/results")
+    plot_file = save_visualizations(df_clean, results_path)
+
+    print("\n=== ANALYSIS REPORT ===\n")
+    report = generate_text_report(results)
+    print(report)
+
+    print(f"\nVisual trend saved to: {plot_file}")
+
+    return 0
